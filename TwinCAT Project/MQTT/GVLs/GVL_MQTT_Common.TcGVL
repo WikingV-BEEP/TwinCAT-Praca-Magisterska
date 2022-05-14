@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.9">
+  <GVL Name="GVL_MQTT_Common" Id="{9ade70c4-4bb0-4835-91bf-df04d8dc4fad}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+VAR_GLOBAL
+	bRestartServer	: BOOL;
+	bNewDataJustCame : BOOL;
+END_VAR]]></Declaration>
+  </GVL>
+</TcPlcObject>

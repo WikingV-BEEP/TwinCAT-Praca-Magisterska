@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.9">
+  <GVL Name="GVL_ShellyRecentValues" Id="{7fb3287f-b492-4ff6-b7b6-d0c9ea893389}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+VAR_GLOBAL
+	rTemperature	:	REAL;
+	rHumidity		:	REAL;
+	iBatteryLevel	:	INT;
+END_VAR]]></Declaration>
+  </GVL>
+</TcPlcObject>

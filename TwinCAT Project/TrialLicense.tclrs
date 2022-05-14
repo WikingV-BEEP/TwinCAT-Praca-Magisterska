@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+<TcLicenseInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2011/11/TcLicenseInfo">
+	<LicenseInfo>
+		<SystemId>{79D4D9D4-0D54-BDAD-40A4-F98476B84EFB}</SystemId>
+		<IssueTime>2022-05-13T14:23:00</IssueTime>
+		<ExpireTime>2022-05-21T00:00:00</ExpireTime>
+		<LicenseKey>1ad52c066cb93fa6c9e4e1a0f6a701edbd469cc29f03b1ede1e8b6c360cf83ec4b5728a0dd7fd8e46effcb550995ffcb63cba8776683d21835ee7cb3a9d177659b8d31b90ab7f872378bbac40a6c6381a36174404d5f9db993dbf205947f37cefe6fae911f758eb705964a833c344f57e350ab359bdd40d0d44a3045d255a9950b3a95ac7f7ad95f0951e28b2f91d1998d3c2bbde776d21d8cce346d503b02edeed0970149323a4915ccd370cd4ebc1dbbacd492a5258735e07bf80e0ae329226cc3162f4f34c3ffd9acb5c545e68867eac0b2907d44b85e73d4a70407a20e07cd81f9c8ccb792c0a9064575a9628bdbe84bc34004367729c9b5e6a17bf48630</LicenseKey>
+		<License>
+			<LicenseId>{4C256767-E6E6-4AF5-BD68-9F7ABAD0C200}</LicenseId>
+			<Name>TC3 ADS</Name>
+			<OrderNo>TC1000</OrderNo>
+		</License>
+		<License>
+			<LicenseId>{3FF18E97-7754-401B-93FB-70544DE28A13}</LicenseId>
+			<Name>TC3 IO</Name>
+			<OrderNo>TC1100</OrderNo>
+		</License>
+		<License>
+			<LicenseId>{66689887-CCBD-452C-AC9A-039D997C6E66}</LicenseId>
+			<Name>TC3 PLC</Name>
+			<OrderNo>TC1200</OrderNo>
+		</License>
+		<License>
+			<LicenseId>{973BA0B1-AADD-41C1-B518-302802473922}</LicenseId>
+			<Name>TC3 IoT MQTT Protocol</Name>
+		</License>
+		<License>
+			<LicenseId>{0ABFD2B0-EAE1-4DC7-AABE-03093B0786B7}</LicenseId>
+			<Name>TC3 IoT Communication (MQTT)</Name>
+			<OrderNo>TF6701</OrderNo>
+		</License>
+		<License>
+			<LicenseId>{92583661-35AE-45CE-BD4F-C35BFE16F07E}</LicenseId>
+			<Name>TC3 Database-Server</Name>
+			<OrderNo>TF6420</OrderNo>
+		</License>
+		<License>
+			<LicenseId>{37E5160D-987B-4640-888D-0F97727B53E2}</LicenseId>
+			<Name>TC3 HMI Clients</Name>
+			<Instances>6</Instances>
+		</License>
+		<License>
+			<LicenseId>{A2091C4C-7D04-4202-B173-9984E7125BC0}</LicenseId>
+			<Name>TC3 HMI Targets</Name>
+			<Instances>6</Instances>
+		</License>
+		<License>
+			<LicenseId>{796D380F-D49E-4C0C-A05F-500052FAC883}</LicenseId>
+			<Name>TC3 HMI Server</Name>
+			<OrderNo>TF2000</OrderNo>
+		</License>
+		<License>
+			<LicenseId>{99A3CF49-FFBF-49D4-BA30-F4C0593B5161}</LicenseId>
+			<Name>TC3 HMI Clients Pack 5</Name>
+			<OrderNo>TF2025</OrderNo>
+		</License>
+		<License>
+			<LicenseId>{2D2E5D68-23A1-4B53-BDF7-41C3861F6DB7}</LicenseId>
+			<Name>TC3 HMI Targets Pack 5</Name>
+			<OrderNo>TF2065</OrderNo>
+		</License>
+	</LicenseInfo>
+</TcLicenseInfo>

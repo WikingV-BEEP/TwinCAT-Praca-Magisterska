@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.9">
+  <DUT Name="E_DbLogState" Id="{e7a4300f-5312-4ae7-a2ad-554daf4e1440}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+TYPE E_DbLogState :
+(
+    idle := 0,
+    init,
+    writing,
+    error
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

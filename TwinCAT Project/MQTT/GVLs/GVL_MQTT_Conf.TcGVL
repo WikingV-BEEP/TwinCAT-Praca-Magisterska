@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.9">
+  <GVL Name="GVL_MQTT_Conf" Id="{39e6c0da-665c-4fa6-b8aa-c4976a520305}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+VAR_GLOBAL
+	sServerIp			:	STRING := '10.24.102.185';
+	sServerPort			:	UINT  := 1883;
+	bServerError		:	BOOL;
+	hrErrCode			:	HRESULT;
+	bErr				:	BOOL;
+	bConnected			:	BOOL;
+	
+	sMainTopic			:	STRING	:= 'shellies'	;
+	sDevice				:	STRING	:=	'shellyht-1E7CD0';
+	sSubTopic			:	STRING;
+	
+	sTempTopic			:	STRING := '/sensor/temperature';
+	sHumTopic			:	STRING := '/sensor/humidity';
+	sBatTopic			:	STRING := '/sensor/battery';
+	sTimeStamp			:	STRING;
+	sFullTempTopic		:	STRING ;
+	sFullHumTopic		:	STRING ;
+	sFullBatTopic		:	STRING ;
+	
+	
+END_VAR]]></Declaration>
+  </GVL>
+</TcPlcObject>

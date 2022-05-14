@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.9">
+  <DUT Name="WindTurbineData" Id="{14348997-61bc-4df4-9e80-acf1ec46384f}">
+    <Declaration><![CDATA[TYPE WindTurbineData :
+STRUCT
+    
+    {attribute 'TagName' := 'ID'}
+    WindTurbineID : STRING(255);
+    
+    {attribute 'FieldName' := 'Power'}
+    Power : LREAL := -1; // ]
+    
+    {attribute 'FieldName' := 'Wind Speed'}
+    WindSpeed : LREAL := -1; // [0) [m/s]
+    
+    {attribute 'FieldName' := 'Wind Direction'}
+    WindDirection : LREAL := -1; // [0,360][°]
+    
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

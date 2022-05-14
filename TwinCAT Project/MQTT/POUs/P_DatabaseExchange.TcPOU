@@ -1,0 +1,90 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.9">
+  <POU Name="P_DatabaseExchange" Id="{f1eb74d7-e034-416a-8b1b-c3c48835316b}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM P_DatabaseExchange
+VAR
+	State									: E_DbLogState;
+    QueryOption_TSDB_Insert 				: T_QueryOptionTimeSeriesDB_Insert; // defines detailed Queryparameter
+    fbNoSQLQueryBuilder_TimeSeriesDB 		: FB_NoSQLQueryBuilder_TimeSeriesDB; // defines database type specific api
+    fbNoSqlQueryEvt 						: FB_NoSQLQueryEvt(sNetID := '', tTimeout := T#15S); // functionblock to execute queries
+    
+    // error handling helper values
+    TcResult								: Tc3_Database.I_TcMessage;
+	
+    bError									: BOOL;
+    bWriting								: BOOL; // Set this bool fla to write the data once into the InfluxDB
+    udiDatabaseID							: UDINT := 1; // Handle to the configured database
+    sErrorMessage							: STRING(255);
+	
+	stDbData								: STDBData;
+	fbPlowToDatabase						: TON := (PT := t#10s);
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[fbPlowToDatabase(in := NOT fbPlowToDatabase.Q);
+CASE State OF 
+	E_DbLogState.idle:
+		 IF GVL_MQTT_Common.bNewDataJustCame OR fbPlowToDatabase.Q THEN
+			 GVL_MQTT_Common.bNewDataJustCame := FALSE;
+			 state := E_DbLogState.init;
+		 END_IF
+	E_DbLogState.init:
+		fbNoSQLQueryBuilder_TimeSeriesDB.pQueryOptions := ADR(QueryOption_TSDB_Insert);
+        fbNoSQLQueryBuilder_TimeSeriesDB.cbQueryOptions := SIZEOF(QueryOption_TSDB_Insert);    
+        stDbData.iBatteryLevel := GVL_ShellyRecentValues.iBatteryLevel;
+		stDbData.rHumidity		:= GVL_ShellyRecentValues.rHumidity;
+		stDbData.rTemperature	:= GVL_ShellyRecentValues.rTemperature;
+		stDbData.sShellyID		:= GVL_MQTT_Conf.sDevice;
+        QueryOption_TSDB_Insert.sTableName := 'ShellyTemperature';
+        QueryOption_TSDB_Insert.sDataType := 'STDBData';
+        QueryOption_TSDB_Insert.pSymbol := ADR(stDbData);
+        QueryOption_TSDB_Insert.cbSymbol := SIZEOF(stDbData);
+        QueryOption_TSDB_Insert.nDataCount := 1;
+        QueryOption_TSDB_Insert.nStartTimestamp := F_GetSystemTime();
+        QueryOption_TSDB_Insert.nCycleTime := 10000; // (in 100 ns)
+        State := E_DbLogState.writing;
+		bError := FALSE;
+		sErrorMessage :='OK';
+	E_DbLogState.writing:
+        IF fbNoSqlQueryEvt.Execute(udiDatabaseID, fbNoSQLQueryBuilder_TimeSeriesDB) THEN
+            IF fbNoSqlQueryEvt.bError THEN
+                TcResult := fbNoSqlQueryEvt.ipTcResult;                
+                State := E_DbLogState.error;
+            ELSE
+                State := E_DbLogState.idle;
+            END_IF
+        END_IF
+	
+	E_DbLogState.error:
+        
+        IF TcResult.RequestEventText(1033, sErrorMessage, SIZEOF(sErrorMessage)) THEN
+            TcResult.Send(F_GetSystemTime());
+            State := E_DbLogState.idle;
+            bError := TRUE;
+        END_IF
+	
+END_CASE]]></ST>
+    </Implementation>
+    <LineIds Name="P_DatabaseExchange">
+      <LineId Id="107" Count="0" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="26" Count="0" />
+      <LineId Id="47" Count="0" />
+      <LineId Id="56" Count="0" />
+      <LineId Id="58" Count="0" />
+      <LineId Id="57" Count="0" />
+      <LineId Id="48" Count="0" />
+      <LineId Id="59" Count="2" />
+      <LineId Id="87" Count="1" />
+      <LineId Id="86" Count="0" />
+      <LineId Id="62" Count="6" />
+      <LineId Id="49" Count="0" />
+      <LineId Id="126" Count="1" />
+      <LineId Id="69" Count="7" />
+      <LineId Id="50" Count="1" />
+      <LineId Id="77" Count="6" />
+      <LineId Id="53" Count="0" />
+      <LineId Id="27" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

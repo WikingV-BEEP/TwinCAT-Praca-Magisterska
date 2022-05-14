@@ -1,0 +1,187 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.9">
+  <POU Name="P_MQTT_Agent" Id="{1d7d88b9-4e82-49ca-85cd-baf5c6d87290}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM P_MQTT_Agent
+VAR
+	fbIoTManager			:	FB_IotMqttClient;
+    fbMessageQueue 			: 	FB_IotMqttMessageQueue;
+    fbMessage      			: 	FB_IotMqttMessage;
+    fbGetSystemTime         : GETSYSTEMTIME;
+    fileTime        		: T_FILETIME;
+	
+	bTopicsSubscribed		:	BOOL;
+	bConfigured				:	BOOL;
+	sBuffer					:	STRING;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF NOT bConfigured THEN 
+	bConfigured := TRUE;
+	
+	fbIoTManager.sHostName  := GVL_MQTT_Conf.sServerIp;
+	fbIoTManager.nHostPort	:= GVL_MQTT_Conf.sServerPort;
+	fbIoTManager.sTopicPrefix := CONCAT(STR1 := GVL_MQTT_Conf.sMainTopic,str2 := 
+												concat(str1 := '/',STR2 := GVL_MQTT_Conf.sDevice));
+	fbIoTManager.ipMessageQueue	:=	fbMessageQueue;
+ELSE
+	fbIoTManager.Execute(bConnect := TRUE);
+END_IF
+
+
+IF fbIoTManager.bConnected AND NOT bTopicsSubscribed THEN 
+	M_SubscribeToTopics();
+END_IF
+
+IF fbMessageQueue.nQueuedMessages <> 0 THEN 
+	fbMessageQueue.Dequeue(fbMessage := fbMessage);
+	
+	IF fbMessage.CompareTopic(sTopic := GVL_MQTT_Conf.sFullBatTopic) THEN
+		fbMessage.GetPayload(pPayload := ADR(sBuffer),
+							nPayloadSize := fbMessage.nPayloadSize,
+							bSetNullTermination := FALSE);
+		GVL_ShellyRecentValues.iBatteryLevel := STRING_TO_INT(sBuffer);
+	ELSIF fbMessage.CompareTopic(sTopic := GVL_MQTT_Conf.sFullHumTopic) THEN
+		fbMessage.GetPayload(pPayload := ADR(sBuffer),
+							nPayloadSize := fbMessage.nPayloadSize,
+							bSetNullTermination := FALSE);
+		GVL_ShellyRecentValues.rHumidity := STRING_TO_REAL(sBuffer);
+	ELSIF fbMessage.CompareTopic(sTopic := GVL_MQTT_Conf.sFullTempTopic) THEN
+		fbMessage.GetPayload(pPayload := ADR(sBuffer),
+							nPayloadSize := fbMessage.nPayloadSize,
+							bSetNullTermination := FALSE);
+		GVL_ShellyRecentValues.rTemperature := STRING_TO_REAL(sBuffer);
+	END_IF
+	
+	IF fbMessageQueue.nQueuedMessages  = 0 THEN 
+		fbGetSystemTime(timeLoDW=>fileTime.dwLowDateTime, timeHiDW=>fileTime.dwHighDateTime );
+		GVL_MQTT_Conf.sTimeStamp :=SYSTEMTIME_TO_STRING( FILETIME_TO_SYSTEMTIME( fileTime ) );
+		GVL_MQTT_Common.bNewDataJustCame := TRUE;
+	END_IF
+	
+END_IF
+
+
+
+
+
+
+
+
+IF GVL_MQTT_Common.bRestartServer THEN
+	M_NewConf();
+	GVL_MQTT_Common.bRestartServer := FALSE;
+	M_UnsubscribeToTopics();
+END_IF
+GVL_MQTT_Conf.bConnected	:=	fbIoTManager.bConnected;
+GVL_MQTT_Conf.bErr			:=	fbIoTManager.bError;
+GVL_MQTT_Conf.hrErrCode		:=	fbIoTManager.hrErrorCode;]]></ST>
+    </Implementation>
+    <Method Name="M_NewConf" Id="{5903465c-c96d-4e86-8700-c780b8d640bd}">
+      <Declaration><![CDATA[METHOD M_NewConf : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[bConfigured := FALSE;
+fbIoTManager.Execute(bConnect := false);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_SubscribeToTopics" Id="{0d7ca85b-4eb3-4834-99a9-4c6698a036c6}">
+      <Declaration><![CDATA[METHOD M_SubscribeToTopics : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF 		fbIoTManager.Subscribe(sTopic := GVL_MQTT_Conf.sHumTopic,eQoS := TcIotMqttQos.ExactlyOnceDelivery)AND
+	fbIoTManager.Subscribe(sTopic := GVL_MQTT_Conf.sTempTopic,eQoS := TcIotMqttQos.ExactlyOnceDelivery)AND
+	fbIoTManager.Subscribe(sTopic := GVL_MQTT_Conf.sBatTopic,eQoS := TcIotMqttQos.ExactlyOnceDelivery) THEN
+	M_SubscribeToTopics := FALSE;
+	bTopicsSubscribed := TRUE;
+	GVL_MQTT_Conf.sFullBatTopic := CONCAT(STR1 := fbIoTManager.sTopicPrefix,STR2:= GVL_MQTT_Conf.sBatTopic);
+	GVL_MQTT_Conf.sFullHumTopic := CONCAT(STR1 := fbIoTManager.sTopicPrefix,STR2:= GVL_MQTT_Conf.sHumTopic);
+	GVL_MQTT_Conf.sFullTempTopic := CONCAT(STR1 := fbIoTManager.sTopicPrefix,STR2:= GVL_MQTT_Conf.sTempTopic);
+ELSE
+	M_SubscribeToTopics := TRUE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_UnsubscribeToTopics" Id="{efaf8946-48e6-4047-ae3d-8a410e04841c}">
+      <Declaration><![CDATA[METHOD M_UnsubscribeToTopics : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF 	fbIoTManager.Unsubscribe(sTopic := GVL_MQTT_Conf.sHumTopic)AND
+	fbIoTManager.Unsubscribe(sTopic := GVL_MQTT_Conf.sTempTopic)AND
+	fbIoTManager.Unsubscribe(sTopic := GVL_MQTT_Conf.sBatTopic) THEN
+	M_UnsubscribeToTopics := FALSE;
+	bTopicsSubscribed := FALSE;
+ELSE
+	M_UnsubscribeToTopics := TRUE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="P_MQTT_Agent">
+      <LineId Id="9" Count="0" />
+      <LineId Id="20" Count="0" />
+      <LineId Id="22" Count="3" />
+      <LineId Id="29" Count="0" />
+      <LineId Id="40" Count="0" />
+      <LineId Id="27" Count="1" />
+      <LineId Id="21" Count="0" />
+      <LineId Id="54" Count="1" />
+      <LineId Id="44" Count="0" />
+      <LineId Id="56" Count="1" />
+      <LineId Id="45" Count="1" />
+      <LineId Id="63" Count="0" />
+      <LineId Id="84" Count="0" />
+      <LineId Id="66" Count="1" />
+      <LineId Id="74" Count="0" />
+      <LineId Id="85" Count="0" />
+      <LineId Id="95" Count="0" />
+      <LineId Id="69" Count="0" />
+      <LineId Id="76" Count="1" />
+      <LineId Id="70" Count="0" />
+      <LineId Id="96" Count="0" />
+      <LineId Id="71" Count="0" />
+      <LineId Id="78" Count="1" />
+      <LineId Id="72" Count="0" />
+      <LineId Id="97" Count="0" />
+      <LineId Id="68" Count="0" />
+      <LineId Id="103" Count="0" />
+      <LineId Id="83" Count="0" />
+      <LineId Id="98" Count="0" />
+      <LineId Id="101" Count="0" />
+      <LineId Id="117" Count="0" />
+      <LineId Id="102" Count="0" />
+      <LineId Id="104" Count="0" />
+      <LineId Id="64" Count="0" />
+      <LineId Id="47" Count="6" />
+      <LineId Id="31" Count="1" />
+      <LineId Id="34" Count="0" />
+      <LineId Id="36" Count="0" />
+      <LineId Id="58" Count="0" />
+      <LineId Id="35" Count="0" />
+      <LineId Id="33" Count="0" />
+      <LineId Id="37" Count="1" />
+    </LineIds>
+    <LineIds Name="P_MQTT_Agent.M_NewConf">
+      <LineId Id="5" Count="1" />
+    </LineIds>
+    <LineIds Name="P_MQTT_Agent.M_SubscribeToTopics">
+      <LineId Id="15" Count="0" />
+      <LineId Id="20" Count="1" />
+      <LineId Id="23" Count="0" />
+      <LineId Id="26" Count="3" />
+      <LineId Id="24" Count="1" />
+      <LineId Id="17" Count="0" />
+    </LineIds>
+    <LineIds Name="P_MQTT_Agent.M_UnsubscribeToTopics">
+      <LineId Id="6" Count="0" />
+      <LineId Id="8" Count="2" />
+      <LineId Id="13" Count="0" />
+      <LineId Id="11" Count="1" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

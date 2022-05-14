@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.9">
+  <POU Name="MAIN" Id="{9090ab64-2610-4d43-b7e3-1a5c7b9c4749}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM MAIN
+VAR
+	bDoOnce : bool := true;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF bDoOnce THEN
+	bDoOnce := FALSE;
+	P_ADSCommManager.FB_init(FALSE,FALSE);
+END_IF
+P_MQTT_Agent();
+P_DatabaseExchange();
+//P_DBTest();
+P_ADSCommManager();]]></ST>
+    </Implementation>
+    <LineIds Name="MAIN">
+      <LineId Id="16" Count="1" />
+      <LineId Id="19" Count="0" />
+      <LineId Id="18" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="7" Count="0" />
+      <LineId Id="11" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>
